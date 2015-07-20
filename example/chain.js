@@ -1,6 +1,6 @@
-var cowchain = require('../');
+var cowfork = require('../');
 var memdb = require('memdb');
-var chain = cowchain(memdb())
+var cow = cowfork(memdb())
 
 var batches = [
   [
@@ -21,23 +21,23 @@ var batches = [
   ]
 ];
 
-// populate the db under a sequence number
-(function next (seq) {
+// populate with a linear chain of updates
+(function next (seq, prev) {
   if (batches.length === 0) return ready();
-  chain.open(seq).batch(batches.shift(), function (err) {
+  cow.create(seq, prev).batch(batches.shift(), function (err) {
     if (err) console.error(err)
-    else next(seq + 1)
+    else next(seq + 1, seq)
   });
-})(0);
+})(0, null);
 
 function ready () {
-  chain.open(0).get('a', function (err, value) {
+  cow.open(0).get('a', function (err, value) {
     console.log('a[0]=', value);
   });
-  chain.open(2).get('a', function (err, value) {
+  cow.open(2).get('a', function (err, value) {
     console.log('a[2]=', value);
   });
-  chain.open(3).get('c', function (err, value) {
+  cow.open(3).get('c', function (err, value) {
     console.log('c[3]=', value);
   });
 }
