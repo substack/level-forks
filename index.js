@@ -12,10 +12,10 @@ var CowDown = require('./lib/cowdown.js');
 module.exports = CF;
 inherits(CF, EventEmitter);
 
-function CF (db) {
+function CF (db, opts) {
   if (!(this instanceof CF)) return new CF(db);
   EventEmitter.call(this);
-  this.db = defaults(db, { valueEncoding: 'json' });
+  this.db = defaults(db, opts);
 }
 
 CF.prototype.create = function (key, prev, opts) {
@@ -25,7 +25,13 @@ CF.prototype.create = function (key, prev, opts) {
   
   var ops = (isarray(prev) ? prev : [prev]).filter(notNullOrUndef)
     .map(function (p) {
-      return { type: 'put', key: 'l!' + key + '!' + p, value: 0 };
+      return {
+        type: 'put',
+        key: 'l!' + key + '!' + p,
+        value: '0',
+        keyEncoding: 'utf8',
+        valueEncoding: 'utf8'
+      };
     })
   ;
   var updb = up(def, opts);
