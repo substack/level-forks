@@ -1,6 +1,6 @@
-var forksnap = require('../');
+var Forks = require('../');
 var memdb = require('memdb');
-var snap = forksnap(memdb());
+var forks = Forks(memdb());
 
 var batches = [
   [
@@ -24,20 +24,20 @@ var batches = [
 // populate with a linear chain of updates
 ;(function next (seq, prev) {
   if (batches.length === 0) return ready();
-  snap.create(seq, prev).batch(batches.shift(), function (err) {
+  forks.create(seq, prev).batch(batches.shift(), function (err) {
     if (err) console.error(err)
     else next(seq + 1, seq)
   });
 })(0, null);
 
 function ready () {
-  snap.open(0).get('a', function (err, value) {
+  forks.open(0).get('a', function (err, value) {
     console.log('a[0]=', value);
   });
-  snap.open(2).get('a', function (err, value) {
+  forks.open(2).get('a', function (err, value) {
     console.log('a[2]=', value);
   });
-  snap.open(3).get('c', function (err, value) {
+  forks.open(3).get('c', function (err, value) {
     console.log('c[3]=', value);
   });
 }
