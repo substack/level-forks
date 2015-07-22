@@ -78,3 +78,26 @@ test('cowdown iterator fail', function (t) {
     });
   });
 });
+
+test('cowdown get prev iterator fail', function (t) {
+  t.plan(3);
+  var db = memdb();
+  var forks = Forks(db, { valueEncoding: 'json' });
+  var c0 = forks.create(0, null);
+  var c1 = forks.create(1, 0);
+  c0.batch(batches[0], function (err) {
+    t.ifError(err);
+    c1.batch(batches[1], function (err) {
+      t.ifError(err);
+      db.db.iterator = function (err) {
+        return {
+          next: function (cb) { cb(new Error('pizza')) }
+        };
+      };
+      var d = new Down(db.db, '1');
+      d.get('b', function (err, value) {
+        t.equal(err.message, 'pizza');
+      });
+    });
+  });
+});
