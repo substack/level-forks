@@ -28,9 +28,8 @@ CF.prototype.create = function (key, prev, opts) {
       return { type: 'put', key: 'l!' + key + '!' + p, value: 0 };
     })
   ;
-  self.db.batch(opts, onbatch);
-  
   var updb = up(def, opts);
+  self.db.batch(ops, onbatch);
   return updb;
   
   function onbatch (err) {

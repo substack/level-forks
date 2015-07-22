@@ -22,7 +22,7 @@ var batches = [
 ];
 
 // populate with a linear chain of updates
-(function next (seq, prev) {
+;(function next (seq, prev) {
   if (batches.length === 0) return ready();
   cow.create(seq, prev).batch(batches.shift(), function (err) {
     if (err) console.error(err)
