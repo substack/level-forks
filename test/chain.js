@@ -105,7 +105,7 @@ test('chain', function (t) {
       var r = c.createReadStream();
       collect(r, function (err, rows) {
         t.ifError(err);
-        t.deepEqual(ex, rows, 'sequence ' + seq);
+        t.deepEqual(rows, ex, 'sequence ' + seq);
       });
       gets[seq].forEach(function (row) {
         c.get(row.key, function (err, value) {
