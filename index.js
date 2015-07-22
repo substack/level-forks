@@ -1,6 +1,5 @@
 var inherits = require('inherits');
 var cowdown = require('level-cowdown');
-var defaults = require('level-defaults');
 var EventEmitter = require('events').EventEmitter;
 var levelup = require('levelup');
 var Deferred = require('deferred-leveldown');
@@ -13,9 +12,10 @@ module.exports = CF;
 inherits(CF, EventEmitter);
 
 function CF (db, opts) {
-  if (!(this instanceof CF)) return new CF(db);
+  if (!(this instanceof CF)) return new CF(db, opts);
   EventEmitter.call(this);
-  this.db = defaults(db, opts);
+  this._options = opts;
+  this.db = db;
 }
 
 CF.prototype.create = function (key, prev, opts) {
@@ -34,7 +34,7 @@ CF.prototype.create = function (key, prev, opts) {
       };
     })
   ;
-  var updb = up(def, opts);
+  var updb = up(def, xtend(self._options, opts));
   self.db.batch(ops, onbatch);
   return updb;
   
@@ -45,7 +45,7 @@ CF.prototype.create = function (key, prev, opts) {
 };
 
 CF.prototype.open = function (key, opts) {
-  return up(new CowDown(this.db, key), opts);
+  return up(new CowDown(this.db, key), xtend(this._options, opts));
 };
 
 function up (down, opts) {
