@@ -1,6 +1,6 @@
 # level-forks
 
-create a forking cascade of leveldb namespaces
+create a forking graph of cascading leveldb namespaces
 
 # example
 
