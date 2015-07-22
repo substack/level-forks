@@ -2,7 +2,6 @@ var test = require('tape');
 var collect = require('collect-stream');
 var cowfork = require('../');
 var memdb = require('memdb');
-var cow = cowfork(memdb())
 
 var chain = [
   [
@@ -87,6 +86,7 @@ var gets = [
 test('chain', function (t) {
   t.plan(51);
   
+  var cow = cowfork(memdb())
   // populate with a linear chain of updates
   var batches = chain.slice();
   
