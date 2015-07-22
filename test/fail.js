@@ -101,3 +101,16 @@ test('cowdown get prev iterator fail', function (t) {
     });
   });
 });
+
+test('missing previous link failure', function (t) {
+  t.plan(2);
+  var db = memdb();
+  var forks = Forks(db, { valueEncoding: 'json' });
+  var c1 = forks.create(1, 0);
+  c1.batch(batches[1], function (err) {
+    t.ifError(err);
+    c1.get('x', function (err, value) {
+      t.ok(err.notFound);
+    });
+  });
+});
