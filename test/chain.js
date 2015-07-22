@@ -49,10 +49,46 @@ var expected = [
   ]
 ];
 
+var gets = [
+  [
+    { key: 'a', value: 100 },
+    { key: 'b', value: 200 },
+    { key: 'c', value: 300 },
+    { key: 'd' },
+    { key: 'e' },
+    { key: 'f' }
+  ],
+  [
+    { key: 'a', value: 123 },
+    { key: 'b', value: 200 },
+    { key: 'c' },
+    { key: 'd', value: 400 },
+    { key: 'e' },
+    { key: 'f' }
+  ],
+  [
+    { key: 'a', value: 123 },
+    { key: 'b', value: 200 },
+    { key: 'c', value: 333 },
+    { key: 'd', value: 400 },
+    { key: 'e' },
+    { key: 'f' }
+  ],
+  [
+    { key: 'a', value: 123 },
+    { key: 'b', value: 200 },
+    { key: 'c', value: 333 },
+    { key: 'd', value: 400 },
+    { key: 'e', value: 555 },
+    { key: 'f' }
+  ]
+];
+
 test('chain', function (t) {
+  t.plan(51);
+  
   // populate with a linear chain of updates
   var batches = chain.slice();
-  t.plan(expected.length * 2 + batches.length);
   
   ;(function next (seq, prev) {
     if (batches.length === 0) return ready();
@@ -62,13 +98,25 @@ test('chain', function (t) {
       next(seq + 1, seq)
     });
   })(0, null);
-
+  
   function ready () {
     expected.forEach(function (ex, seq) {
-      var r = cow.open(seq, { valueEncoding: 'json' }).createReadStream();
+      var c = cow.open(seq, { valueEncoding: 'json' });
+      var r = c.createReadStream();
       collect(r, function (err, rows) {
         t.ifError(err);
         t.deepEqual(ex, rows, 'sequence ' + seq);
+      });
+      gets[seq].forEach(function (row) {
+        c.get(row.key, function (err, value) {
+          if ('value' in row) {
+            t.ifError(err);
+            t.deepEqual(value, row.value, '.get("' + row.key + '") value');
+          }
+          else {
+            t.equal(err.type, 'NotFoundError', row.key + ' not set');
+          }
+        });
       });
     });
   }
