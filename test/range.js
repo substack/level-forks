@@ -1,6 +1,6 @@
 var test = require('tape');
 var collect = require('collect-stream');
-var forksnap = require('../');
+var Forks = require('../');
 var memdb = require('memdb');
 
 var chain = [
@@ -26,11 +26,11 @@ test('range', function (t) {
   // populate with a linear chain of updates
   var batches = chain.slice();
   t.plan(batches.length + 14*4);
-  var snap = forksnap(memdb())
+  var forks = Forks(memdb())
   
   ;(function next (seq, prev) {
     if (batches.length === 0) return ready();
-    var c = snap.create(seq, prev, { valueEncoding: 'json' });
+    var c = forks.create(seq, prev, { valueEncoding: 'json' });
     c.batch(batches.shift(), function (err) {
       t.ifError(err, 'batch ' + seq);
       next(seq + 1, seq)
@@ -38,7 +38,7 @@ test('range', function (t) {
   })(0, null);
   
   function ready () {
-    var c0 = snap.open(0, { valueEncoding: 'json' });
+    var c0 = forks.open(0, { valueEncoding: 'json' });
     collect(c0.createReadStream({ gt: 'a' }), function (err, rows) {
       t.ifError(err);
       t.deepEqual(rows, [
@@ -84,7 +84,7 @@ test('range', function (t) {
       ], 'seq 0 lt c gte a');
     });
     
-    var c1 = snap.open(1, { valueEncoding: 'json' });
+    var c1 = forks.open(1, { valueEncoding: 'json' });
     collect(c1.createReadStream({ gt: 'a' }), function (err, rows) {
       t.ifError(err);
       t.deepEqual(rows, [
@@ -129,7 +129,7 @@ test('range', function (t) {
       ], 'seq 1 lt c gte a');
     });
     
-    var c2 = snap.open(2, { valueEncoding: 'json' });
+    var c2 = forks.open(2, { valueEncoding: 'json' });
     collect(c2.createReadStream({ gt: 'a' }), function (err, rows) {
       t.ifError(err);
       t.deepEqual(rows, [
@@ -177,7 +177,7 @@ test('range', function (t) {
       ], 'seq 2 lt c gte a');
     });
     
-    var c3 = snap.open(3, { valueEncoding: 'json' });
+    var c3 = forks.open(3, { valueEncoding: 'json' });
     collect(c3.createReadStream({ gt: 'a' }), function (err, rows) {
       t.ifError(err);
       t.deepEqual(rows, [

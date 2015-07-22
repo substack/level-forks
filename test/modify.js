@@ -1,6 +1,6 @@
 var test = require('tape');
 var collect = require('collect-stream');
-var forksnap = require('../');
+var Forks = require('../');
 var memdb = require('memdb');
 
 var chain = [
@@ -22,7 +22,7 @@ var chain = [
   ]
 ];
 
-var snap = forksnap(memdb(), { valueEncoding: 'json' });
+var forks = Forks(memdb(), { valueEncoding: 'json' });
 
 test('modify', function (t) {
   // populate with a linear chain of updates
@@ -31,7 +31,7 @@ test('modify', function (t) {
   
   ;(function next (seq, prev) {
     if (batches.length === 0) return modify();
-    var c = snap.create(seq, prev);
+    var c = forks.create(seq, prev);
     c.batch(batches.shift(), function (err) {
       t.ifError(err, 'batch ' + seq);
       next(seq + 1, seq)
@@ -39,16 +39,16 @@ test('modify', function (t) {
   })(0, null);
   
   function modify () {
-    var c0 = snap.open(0);
+    var c0 = forks.open(0);
     c0.get('b', function (err, value) {
       t.ifError(err);
       t.equal(value, 200);
       c0.del('b', function (err) {
         t.ifError(err);
-        snap.open(0).get('b', function (err) {
+        forks.open(0).get('b', function (err) {
           t.ok(err.notFound);
         });
-        snap.open(2).get('b', function (err) {
+        forks.open(2).get('b', function (err) {
           t.ok(err.notFound);
         });
       });
@@ -56,28 +56,28 @@ test('modify', function (t) {
     
     c0.del('c', function (err, value) {
       t.ifError(err);
-      snap.open(1).get('c', function (err) {
+      forks.open(1).get('c', function (err) {
         t.ok(err.notFound);
       });
-      snap.open(2).get('c', function (err, value) {
+      forks.open(2).get('c', function (err, value) {
         t.ifError(err);
         t.equal(value, 333);
       });
     });
     
-    var c1 = snap.open(1);
+    var c1 = forks.open(1);
     c1.put('x', 5000, function (err) {
       t.ifError(err);
-      snap.open(3).del('x', function (err) {
+      forks.open(3).del('x', function (err) {
         t.ifError(err);
-        snap.open(2).get('x', function (err, value) {
+        forks.open(2).get('x', function (err, value) {
           t.ifError(err);
           t.equal(value, 5000);
         });
-        snap.open(0).get('x', function (err) {
+        forks.open(0).get('x', function (err) {
           t.ok(err.notFound);
         });
-        snap.open(1).get('x', function (err, value) {
+        forks.open(1).get('x', function (err, value) {
           t.ifError(err);
           t.equal(value, 5000);
         });
@@ -88,13 +88,13 @@ test('modify', function (t) {
  
 test('modify range check', function (t) {
   t.plan(8);
-  collect(snap.open(0).createReadStream(), function (err, rows) {
+  collect(forks.open(0).createReadStream(), function (err, rows) {
     t.ifError(err);
     t.deepEqual(rows, [
       { key: 'a', value: 100 }
     ], 'seq 0');
   });
-  collect(snap.open(1).createReadStream(), function (err, rows) {
+  collect(forks.open(1).createReadStream(), function (err, rows) {
     t.ifError(err);
     t.deepEqual(rows, [
       { key: 'a', value: 123 },
@@ -102,7 +102,7 @@ test('modify range check', function (t) {
       { key: 'x', value: 5000 }
     ], 'seq 1');
   });
-  collect(snap.open(2).createReadStream(), function (err, rows) {
+  collect(forks.open(2).createReadStream(), function (err, rows) {
     t.ifError(err);
     t.deepEqual(rows, [
       { key: 'a', value: 123 },
@@ -111,7 +111,7 @@ test('modify range check', function (t) {
       { key: 'x', value: 5000 }
     ], 'seq 2');
   });
-  collect(snap.open(3).createReadStream(), function (err, rows) {
+  collect(forks.open(3).createReadStream(), function (err, rows) {
     t.ifError(err);
     t.deepEqual(rows, [
       { key: 'a', value: 123 },
