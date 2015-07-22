@@ -1,11 +1,9 @@
 var inherits = require('inherits');
-var cowdown = require('level-cowdown');
 var EventEmitter = require('events').EventEmitter;
 var levelup = require('levelup');
 var Deferred = require('deferred-leveldown');
 var xtend = require('xtend');
 var isarray = require('isarray');
-var collect = require('collect-stream');
 var CowDown = require('./lib/cowdown.js');
 
 module.exports = CF;
