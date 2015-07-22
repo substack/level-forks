@@ -1,6 +1,6 @@
 var test = require('tape');
 var collect = require('collect-stream');
-var cowfork = require('../');
+var forksnap = require('../');
 var memdb = require('memdb');
 
 var chain = [
@@ -86,13 +86,13 @@ var gets = [
 test('chain', function (t) {
   t.plan(51);
   
-  var cow = cowfork(memdb())
+  var snap = forksnap(memdb())
   // populate with a linear chain of updates
   var batches = chain.slice();
   
   ;(function next (seq, prev) {
     if (batches.length === 0) return ready();
-    var c = cow.create(seq, prev, { valueEncoding: 'json' });
+    var c = snap.create(seq, prev, { valueEncoding: 'json' });
     c.batch(batches.shift(), function (err) {
       t.ifError(err, 'batch ' + seq);
       next(seq + 1, seq)
@@ -101,7 +101,7 @@ test('chain', function (t) {
   
   function ready () {
     expected.forEach(function (ex, seq) {
-      var c = cow.open(seq, { valueEncoding: 'json' });
+      var c = snap.open(seq, { valueEncoding: 'json' });
       var r = c.createReadStream();
       collect(r, function (err, rows) {
         t.ifError(err);

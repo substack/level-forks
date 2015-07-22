@@ -1,7 +1,7 @@
 {
-  "name": "level-cow-fork",
+  "name": "level-fork-snapshot",
   "version": "1.0.0",
-  "description": "forking chain of copy-on-write snapshots",
+  "description": "forking chain of snapshots",
   "main": "index.js",
   "directories": {
     "example": "example",
@@ -27,20 +27,20 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/substack/level-cow-fork.git"
+    "url": "git+ssh://git@github.com/substack/level-fork-snapshot.git"
   },
   "keywords": [
     "copy-on-write",
-    "cow",
     "dag",
     "fork",
     "index",
-    "level"
+    "level",
+    "snapshot"
   ],
   "author": "substack",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/substack/level-cow-fork/issues"
+    "url": "https://github.com/substack/level-fork-snapshot/issues"
   },
-  "homepage": "https://github.com/substack/level-cow-fork#readme"
+  "homepage": "https://github.com/substack/level-fork-snapshot#readme"
 }

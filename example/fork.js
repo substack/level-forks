@@ -1,7 +1,7 @@
 var collect = require('collect-stream');
-var cowfork = require('../');
+var forksnap = require('../');
 var memdb = require('memdb');
-var cow = cowfork(memdb())
+var snap = forksnap(memdb());
 
 var docs = [
   {
@@ -40,7 +40,7 @@ var docs = [
 
 var pending = docs.length;
 docs.forEach(function (doc) {
-  var c = cow.create(doc.id, doc.prev, { valueEncoding: 'json' });
+  var c = snap.create(doc.id, doc.prev, { valueEncoding: 'json' });
   c.batch(doc.batch, function (err) {
     if (err) console.error(err);
     if (--pending === 0) ready();
@@ -48,5 +48,5 @@ docs.forEach(function (doc) {
 });
 
 function ready () {
-  cow.open('C').createReadStream().on('data', console.log);
+  snap.open('C').createReadStream().on('data', console.log);
 }

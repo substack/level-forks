@@ -1,6 +1,6 @@
 var test = require('tape');
 var collect = require('collect-stream');
-var cowfork = require('../');
+var forksnap = require('../');
 var memdb = require('memdb');
 
 var docs = [
@@ -63,11 +63,11 @@ var expected = {
   ]
 };
 
-var cow = cowfork(memdb())
+var snap = forksnap(memdb())
 test('fork populate', function (t) {
   t.plan(docs.length);
   docs.forEach(function (doc) {
-    var c = cow.create(doc.id, doc.prev, { valueEncoding: 'json' });
+    var c = snap.create(doc.id, doc.prev, { valueEncoding: 'json' });
     c.batch(doc.batch, function (err) {
       t.ifError(err, 'batch ' + doc.id);
     });
@@ -78,7 +78,7 @@ test('fork', function (t) {
   t.plan(docs.length * 2);
   Object.keys(expected).forEach(function (key) {
     var ex = expected[key];
-    var c = cow.open(key, { valueEncoding: 'json' });
+    var c = snap.open(key, { valueEncoding: 'json' });
     var r = c.createReadStream();
     collect(r, function (err, rows) {
       t.ifError(err);

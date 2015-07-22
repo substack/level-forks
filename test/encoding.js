@@ -1,6 +1,6 @@
 var test = require('tape');
 var collect = require('collect-stream');
-var cowfork = require('../');
+var forksnap = require('../');
 var memdb = require('memdb');
 
 var chain = [
@@ -26,11 +26,11 @@ test('encoding', function (t) {
   // populate with a linear chain of updates
   var batches = chain.slice();
   t.plan(batches.length + 4);
-  var cow = cowfork(memdb(), { valueEncoding: 'json' });
+  var snap = forksnap(memdb(), { valueEncoding: 'json' });
   
   ;(function next (seq, prev) {
     if (batches.length === 0) return ready();
-    var c = cow.create(seq, prev);
+    var c = snap.create(seq, prev);
     c.batch(batches.shift(), function (err) {
       t.ifError(err, 'batch ' + seq);
       next(seq + 1, seq)
@@ -38,7 +38,7 @@ test('encoding', function (t) {
   })(0, null);
   
   function ready () {
-    var c0 = cow.open(0);
+    var c0 = snap.open(0);
     collect(c0.createReadStream({ gt: 'a' }), function (err, rows) {
       t.ifError(err);
       t.deepEqual(rows, [
