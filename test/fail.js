@@ -114,3 +114,41 @@ test('missing previous link failure', function (t) {
     });
   });
 });
+
+test('unhandled key type', function (t) {
+  t.plan(5);
+  var db = memdb();
+  var forks = Forks(db, { valueEncoding: 'json' });
+  var c0 = forks.create(0);
+  c0.batch(batches[0], function (err) {
+    t.ifError(err);
+    var d = new Down(db, '0');
+    d.iterator({ gt: [1,2,3] }).next(function (err) {
+      t.ok(err);
+    });
+    d.iterator({ gte: [1,2,3] }).next(function (err) {
+      t.ok(err);
+    });
+    d.iterator({ lt: [1,2,3] }).next(function (err) {
+      t.ok(err);
+    });
+    d.iterator({ lte: [1,2,3] }).next(function (err) {
+      t.ok(err);
+    });
+  });
+});
+
+test('iterator no opts', function (t) {
+  t.plan(3);
+  var db = memdb();
+  var forks = Forks(db, { valueEncoding: 'json' });
+  var c0 = forks.create(0);
+  c0.batch(batches[0], function (err) {
+    t.ifError(err);
+    var d = new Down(db, '0');
+    d.iterator().next(function (err, key, value) {
+      t.deepEqual(key, new Buffer('a'));
+      t.deepEqual(value, new Buffer('100'));
+    });
+  });
+});
