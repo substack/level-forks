@@ -22,32 +22,6 @@ var chain = [
   ]
 ];
 
-var expected = [
-  [
-    { key: 'a', value: 100 },
-    { key: 'b', value: 200 },
-    { key: 'c', value: 300 },
-  ],
-  [
-    { key: 'a', value: 123 },
-    { key: 'b', value: 200 },
-    { key: 'd', value: 400 }
-  ],
-  [
-    { key: 'a', value: 123 },
-    { key: 'b', value: 200 },
-    { key: 'c', value: 333 },
-    { key: 'd', value: 400 }
-  ],
-  [
-    { key: 'a', value: 123 },
-    { key: 'b', value: 200 },
-    { key: 'c', value: 333 },
-    { key: 'd', value: 400 },
-    { key: 'e', value: 555 }
-  ]
-];
-
 test('range', function (t) {
   // populate with a linear chain of updates
   var batches = chain.slice();
