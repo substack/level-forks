@@ -37,7 +37,7 @@ CF.prototype.create = function (key, prev, opts) {
   return updb;
   
   function onbatch (err) {
-    if (err) return updb.emit('error', err)
+    if (err) updb.emit('error', err);
     def.setDb(new CowDown(self.db, key));
   }
 };
