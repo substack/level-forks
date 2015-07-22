@@ -23,7 +23,7 @@ CF.prototype.create = function (key, prev, opts) {
   if (!opts) opts = {};
   var def = new Deferred('fake');
   
-  var ops = (isarray(prev) ? prev : [prev]).filter(Boolean)
+  var ops = (isarray(prev) ? prev : [prev]).filter(defined)
     .map(function (p) {
       return { type: 'put', key: 'l!' + key + '!' + p, value: 0 };
     })
@@ -47,3 +47,5 @@ function up (down, opts) {
     db: function () { return down }
   }));
 }
+
+function defined (x) { return x !== undefined }
