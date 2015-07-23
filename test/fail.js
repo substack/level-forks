@@ -79,6 +79,29 @@ test('cowdown iterator fail', function (t) {
   });
 });
 
+test('cowdown get prev get fail', function (t) {
+  t.plan(3);
+  var db = memdb();
+  var forks = Forks(db, { valueEncoding: 'json' });
+  var c0 = forks.create(0, null);
+  var c1 = forks.create(1, 0);
+  c0.batch(batches[0], function (err) {
+    t.ifError(err);
+    c1.batch(batches[1], function (err) {
+      t.ifError(err);
+      db.db.iterator = function (opts) {
+        return {
+          next: function (cb) { cb(new Error('pizza')) }
+        };
+      };
+      var d = new Down(db.db, '1');
+      d.get('b', function (err, value) {
+        t.equal(err.message, 'pizza');
+      });
+    });
+  });
+});
+
 test('cowdown get prev iterator fail', function (t) {
   t.plan(3);
   var db = memdb();
@@ -95,7 +118,7 @@ test('cowdown get prev iterator fail', function (t) {
         };
       };
       var d = new Down(db.db, '1');
-      d.get('b', function (err, value) {
+      d.iterator().next(function (err, value) {
         t.equal(err.message, 'pizza');
       });
     });
@@ -115,8 +138,37 @@ test('missing previous link failure', function (t) {
   });
 });
 
+test('iterator get prev fail', function (t) {
+  t.plan(3);
+  var db = memdb();
+  var forks = Forks(db, { valueEncoding: 'json' });
+  var c0 = forks.create(0, null);
+  var c1 = forks.create(1, 0);
+  c0.batch(batches[0], function (err) {
+    t.ifError(err);
+    c1.batch(batches[1], function (err) {
+      t.ifError(err);
+      var iterator = db.db.iterator;
+      db.db.iterator = function (opts) {
+        if (/^l!0!/.test(opts.gt)) {
+          return {
+            next: function (cb) {
+              cb(new Error('pizza'))
+            }
+          };
+        }
+        else return iterator.apply(this, arguments);
+      };
+      var d = new Down(db.db, '1');
+      d.iterator().next(function (err, value) {
+        t.equal(err.message, 'pizza');
+      });
+    });
+  });
+});
+
 test('unhandled key type', function (t) {
-  t.plan(5);
+  t.plan(7);
   var db = memdb();
   var forks = Forks(db, { valueEncoding: 'json' });
   var c0 = forks.create(0);
@@ -124,16 +176,24 @@ test('unhandled key type', function (t) {
     t.ifError(err);
     var d = new Down(db, '0');
     d.iterator({ gt: [1,2,3] }).next(function (err) {
-      t.ok(err);
+      t.equal(err.message, 'unhandled key type');
     });
     d.iterator({ gte: [1,2,3] }).next(function (err) {
-      t.ok(err);
+      t.equal(err.message, 'unhandled key type');
     });
     d.iterator({ lt: [1,2,3] }).next(function (err) {
-      t.ok(err);
+      t.equal(err.message, 'unhandled key type');
     });
     d.iterator({ lte: [1,2,3] }).next(function (err) {
-      t.ok(err);
+      t.equal(err.message, 'unhandled key type');
+    });
+    d._get([1,2,3], {}, function (err) {
+      t.equal(err.message, 'unhandled key type');
+    });
+    d._batch([
+      { type: 'put', key: {a:3}, value: '4' }
+    ], {}, function (err) {
+      t.equal(err.message, 'unhandled key type');
     });
   });
 });
