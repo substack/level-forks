@@ -20,6 +20,7 @@
     "collect-stream": "^1.0.0",
     "covert": "^1.1.0",
     "memdb": "^1.0.1",
+    "memdown": "^1.0.0",
     "tape": "^4.0.1"
   },
   "scripts": {

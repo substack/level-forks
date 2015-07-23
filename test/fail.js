@@ -2,6 +2,7 @@ var test = require('tape');
 var collect = require('collect-stream');
 var Forks = require('../');
 var memdb = require('memdb');
+var memdown = require('memdown');
 var Down = require('../lib/cowdown.js');
 
 var batches = [
@@ -249,6 +250,33 @@ test('cursor iterator error', function (t) {
     var it = d.iterator();
     it.next(function (err, k0, v0) {
       t.equal(err.message, 'pizza', 'cursor error');
+    });
+  }
+});
+
+test('iterator get deleted fail', function (t) {
+  t.plan(batches.length + 2);
+  var db = memdown();
+  var get = db.get;
+  db.get = function (key, cb) {
+    cb(new Error('hey what'));
+  };
+  var forks = Forks(db, { valueEncoding: 'json' });
+  (function next (seq, prev) {
+    if (!batches[seq]) return ready();
+    var c = forks.create(seq, prev);
+    c.batch(batches[seq], function (err) {
+      t.ifError(err);
+      next(seq+1, seq);
+    });
+  })(0, null);
+  
+  function ready (err) {
+    t.ifError(err);
+    var c2 = forks.open(2);
+    var r = c2.createReadStream();
+    collect(r, function (err, rows) {
+      t.equal(err.message, 'hey what');
     });
   }
 });
