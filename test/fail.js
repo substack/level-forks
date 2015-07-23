@@ -112,7 +112,7 @@ test('cowdown get prev iterator fail', function (t) {
     t.ifError(err);
     c1.batch(batches[1], function (err) {
       t.ifError(err);
-      db.db.iterator = function (err) {
+      db.db.iterator = function (opts) {
         return {
           next: function (cb) { cb(new Error('pizza')) }
         };
@@ -211,4 +211,44 @@ test('iterator no opts', function (t) {
       t.deepEqual(value, new Buffer('100'));
     });
   });
+});
+
+test('cursor iterator error', function (t) {
+  t.plan(4);
+  var db = memdb();
+  var forks = Forks(db, { valueEncoding: 'json' });
+  var c0 = forks.create(0, null);
+  var c1 = forks.create(1, 0);
+  var c2 = forks.create(2, 1);
+  var pending = 3;
+  c0.batch(batches[0], function (err) {
+    t.ifError(err);
+    ready();
+  });
+  c1.batch(batches[1], function (err) {
+    t.ifError(err);
+    ready();
+  });
+  c1.batch(batches[2], function (err) {
+    t.ifError(err);
+    ready();
+  });
+  function ready () {
+    if (--pending !== 0) return;
+    var iterator = db.db.iterator;
+    var n = 0;
+    db.db.iterator = function (opts) {
+      if (++n === 3) {
+        return {
+          next: function (cb) { cb(new Error('pizza')) }
+        };
+      }
+      else return iterator.apply(this, arguments);
+    };
+    var d = new Down(db.db, '2');
+    var it = d.iterator();
+    it.next(function (err, k0, v0) {
+      t.equal(err.message, 'pizza', 'cursor error');
+    });
+  }
 });
