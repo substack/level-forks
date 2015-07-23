@@ -80,6 +80,21 @@ test('cowdown iterator fail', function (t) {
   });
 });
 
+test('cowdown iterator no opts', function (t) {
+  t.plan(2);
+  var db = memdb();
+  var forks = Forks(db, { valueEncoding: 'json' });
+  var c0 = forks.create(0, null);
+  c0.batch(batches[0], function (err) {
+    t.ifError(err);
+    
+    var d = new Down(db, '0');;
+    d._iterator().next(function (err) {
+      t.ifError(err);
+    });
+  });
+});
+
 test('cowdown get prev get fail', function (t) {
   t.plan(3);
   var db = memdb();
