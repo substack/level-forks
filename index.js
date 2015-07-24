@@ -16,9 +16,13 @@ function CF (db, opts) {
   this.db = db;
 }
 
-CF.prototype.create = function (key, prev, opts) {
+CF.prototype.create = function (key, prev, opts, cb) {
   var self = this;
   if (!opts) opts = {};
+  if (typeof opts === 'function') {
+    cb = opts;
+    opts = {};
+  }
   var def = new Deferred('fake');
   
   var ops = (isarray(prev) ? prev : [prev]).filter(notNullOrUndef)
@@ -37,7 +41,9 @@ CF.prototype.create = function (key, prev, opts) {
   return updb;
   
   function onbatch (err) {
-    if (err) updb.emit('error', err);
+    if (cb && err) cb(err);
+    else if (err) updb.emit('error', err);
+    else if (cb) cb(null, updb);
     def.setDb(new CowDown(self.db, key));
   }
 };
