@@ -295,3 +295,18 @@ test('iterator get deleted fail', function (t) {
     });
   }
 });
+
+test('create fail', function (t) {
+  t.plan(1);
+  var db = memdb();
+  db.batch = function (rows, cb) {
+    process.nextTick(function () {
+      cb(new Error('whatever'));
+    });
+  };
+  var forks = Forks(db, { valueEncoding: 'json' });
+  var c0 = forks.create(0, null, function (err) {
+    t.equal(err.message, 'whatever');
+  });
+  c0.batch(batches[0]);
+});
