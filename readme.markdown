@@ -81,12 +81,15 @@ Create a new instance `forks` from a levelup or leveldown handle `db`.
 Options from `opts` are passed to levelup so you can set things like
 `opts.valueEncoding` and `opts.keyEncoding`.
 
-## var db = forks.create(key, prev=[], opts={})
+## var db = forks.create(key, prev=[], opts={}, cb)
 
 Create a new `db` identified by `key` that link back to the keys in `prev`,
 if any.
 
 `db` is a levelup handle that represents the database at `key` in the graph.
+
+When the links are written, `cb(err, db)` fires with any errors `err` or the
+database handle `db`.
 
 ## var db = forks.open(key)
 
