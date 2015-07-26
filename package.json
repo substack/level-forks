@@ -25,7 +25,7 @@
     "tape": "^4.0.1"
   },
   "scripts": {
-    "coverage": "covert test/*.js",
+    "coverage": "ls -1 test/*.js | grep -v db\\. | xargs covert",
     "test": "tape test/*.js"
   },
   "repository": {
