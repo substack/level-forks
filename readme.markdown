@@ -91,9 +91,19 @@ if any.
 When the links are written, `cb(err, db)` fires with any errors `err` or the
 database handle `db`.
 
-## var db = forks.open(key)
+Set encodings with `opts.valueEncoding` or `opts.keyEncoding` or:
+
+* `opts.prebatch(function (rows, cb) {})` - intercept batches, calling
+`cb(err, rows)` with rows to insert on a batch
+
+## var db = forks.open(key, opts)
 
 Open an existing levelup handle by its `key`.
+
+Set encodings with `opts.valueEncoding` or `opts.keyEncoding` or:
+
+* `opts.prebatch(function (rows, cb) {})` - intercept batches, calling
+`cb(err, rows)` with rows to insert on a batch
 
 # install
 
