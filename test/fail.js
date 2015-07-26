@@ -310,3 +310,14 @@ test('create fail', function (t) {
   });
   c0.batch(batches[0]);
 });
+
+test('prebatch fail', function (t) {
+  t.plan(1);
+  var db = memdb();
+  var forks = Forks(db, { valueEncoding: 'json' });
+  var c0 = forks.create(0, null, { prebatch: prebatch });
+  c0.batch(batches[0], function (err) {
+    t.equal(err.message, 'whatever');
+  });
+  function prebatch (ops, cb) { cb(new Error('whatever')) }
+});
