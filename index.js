@@ -44,12 +44,12 @@ CF.prototype.create = function (key, prev, opts, cb) {
     if (cb && err) cb(err);
     else if (err) updb.emit('error', err);
     else if (cb) cb(null, updb);
-    def.setDb(new CowDown(self.db, key));
+    def.setDb(new CowDown(self.db, key, opts));
   }
 };
 
 CF.prototype.open = function (key, opts) {
-  return up(new CowDown(this.db, key), xtend(this._options, opts));
+  return up(new CowDown(this.db, key, opts), xtend(this._options, opts));
 };
 
 function up (down, opts) {
