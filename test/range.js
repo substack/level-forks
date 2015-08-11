@@ -25,7 +25,7 @@ var chain = [
 test('range', function (t) {
   // populate with a linear chain of updates
   var batches = chain.slice();
-  t.plan(batches.length + 14*4);
+  t.plan(62);
   var forks = Forks(memdb())
   
   ;(function next (seq, prev) {
@@ -225,6 +225,10 @@ test('range', function (t) {
         { key: 'a', value: 123 },
         { key: 'b', value: 200 }
       ], 'seq 3 lt c gte a');
+    });
+    collect(c3.createReadStream({ lt: 'abc', gte: 'abd' }), function (err, rows) {
+      t.ifError(err);
+      t.deepEqual(rows, [], 'empty seq 3 lt abc gte abd');
     });
   }
 });
