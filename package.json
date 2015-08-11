@@ -1,6 +1,6 @@
 {
   "name": "level-forks",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "forking graph of cascading namespaces",
   "main": "index.js",
   "directories": {
