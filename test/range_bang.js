@@ -22,7 +22,7 @@ var chain = [
   ]
 ];
 
-test('range', function (t) {
+test('range bang', function (t) {
   // populate with a linear chain of updates
   var batches = chain.slice();
   t.plan(batches.length + 14*4);
